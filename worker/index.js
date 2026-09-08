@@ -48,7 +48,7 @@ export default {
 
     return new Response(
       JSON.stringify({
-        ssid: env.WIFI_SSID,
+        ssid: env.WIFI_NAME,
         password: env.WIFI_PASSWORD
       }),
       {
