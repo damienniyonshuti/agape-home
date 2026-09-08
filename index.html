@@ -28,7 +28,7 @@
     dialog::backdrop { background:rgba(0,0,0,.68); backdrop-filter:blur(3px); }
     .modal { padding:24px; } .modal h2 { margin:0 0 8px; font-weight:500; } .modal p { color:var(--muted); line-height:1.5; }
     .wifi-box { margin:18px 0; padding:16px; background:rgba(255,255,255,.06); border-radius:14px; }
-    .wifi-row { display:flex; justify-content:space-between; gap:14px; padding:7px 0; } .wifi-label { color:var(--muted); }
+    .wifi-row { display:flex; justify-content:space-between; align-items:center; gap:14px; padding:7px 0; } .wifi-label { color:var(--muted); } .wifi-value { text-align:right; }
     button { width:100%; border:0; border-radius:14px; padding:14px 16px; font-size:16px; font-weight:600; background:var(--accent); color:#141414; }
     button:disabled { opacity:.55; } .note { font-size:12px; color:var(--muted); margin-top:12px; }
   </style>
@@ -50,11 +50,12 @@
 </main>
 <dialog id="wifiDialog"><div class="modal">
   <h2>Welcome to HolyNet</h2><p id="wifiStatus">Loading your Agape guest Wi‑Fi…</p>
-  <div class="wifi-box"><div class="wifi-row"><span class="wifi-label">Network</span><strong id="ssid">••••••</strong></div><div class="wifi-row"><span class="wifi-label">Password</span><strong id="password">••••••••</strong></div></div>
+  <div class="wifi-box"><div class="wifi-row"><span class="wifi-label">Network</span><strong class="wifi-value" id="ssid">HolyNet</strong></div><div class="wifi-row"><span class="wifi-label">Password</span><strong class="wifi-value" id="password">••••••••</strong></div></div>
   <button id="copyWifi" disabled>Copy Wi‑Fi details</button><div class="note">On iPhone, open Settings → Wi‑Fi, select the network above, then paste the password.</div><div style="height:10px"></div><button id="closeWifi" style="background:rgba(255,255,255,.08);color:var(--text)">Close</button>
 </div></dialog>
 <script>
   const API_BASE='https://agape-guest-api.damienniyonshuti.workers.dev';
+  const GUEST_NETWORK='HolyNet';
   const dialog=document.getElementById('wifiDialog');
   const copyBtn=document.getElementById('copyWifi');
 
@@ -70,14 +71,14 @@
 
   async function loadWifi(){
     const token=new URLSearchParams(location.search).get('key');
-    document.getElementById('ssid').textContent='••••••'; document.getElementById('password').textContent='••••••••'; copyBtn.disabled=true;
+    document.getElementById('ssid').textContent=GUEST_NETWORK; document.getElementById('password').textContent='••••••••'; copyBtn.disabled=true;
     if(!token){ document.getElementById('wifiStatus').textContent='Tap the Agape NFC tag to unlock guest Wi‑Fi details.'; return; }
     document.getElementById('wifiStatus').textContent='Loading your Agape guest Wi‑Fi…';
     try{
       const res=await fetch(`${API_BASE}/wifi`,{headers:{'X-Agape-Token':token}});
       if(!res.ok) throw new Error('Unauthorized');
-      const data=await res.json(); document.getElementById('ssid').textContent=data.ssid; document.getElementById('password').textContent=data.password; document.getElementById('wifiStatus').textContent='Use the details below to join the guest network.'; copyBtn.disabled=false;
-    }catch(e){ document.getElementById('wifiStatus').textContent='Wi‑Fi details could not be unlocked. Please tap the Agape NFC tag again.'; }
+      const data=await res.json(); document.getElementById('ssid').textContent=data.ssid || GUEST_NETWORK; document.getElementById('password').textContent=data.password; document.getElementById('wifiStatus').textContent='Use the details below to join the guest network.'; copyBtn.disabled=false;
+    }catch(e){ document.getElementById('ssid').textContent=GUEST_NETWORK; document.getElementById('wifiStatus').textContent='Wi‑Fi details could not be unlocked. Please tap the Agape NFC tag again.'; }
   }
   document.getElementById('wifiCard').addEventListener('click',async e=>{e.preventDefault();dialog.showModal();await loadWifi();});
   document.getElementById('closeWifi').addEventListener('click',()=>dialog.close());
