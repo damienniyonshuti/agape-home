@@ -33,34 +33,275 @@ const VERSES = [
   { text: "The joy of the Lord is your strength.", reference: "Nehemiah 8:10", youversion: "https://www.bible.com/bible/111/NEH.8.10.NIV" }
 ];
 
-// Short, attributed sayings curated for the Agape daily-wisdom experience.
-// Keep entries concise so the guest page stays calm and uncluttered.
-const WISDOM = [
-  { quote: "Make each day your masterpiece.", author: "John Wooden" },
-  { quote: "Faith is taking the first step even when you don't see the whole staircase.", author: "Martin Luther King Jr." },
-  { quote: "Nothing will work unless you do.", author: "Maya Angelou" },
-  { quote: "Well done is better than well said.", author: "Benjamin Franklin" },
-  { quote: "The future depends on what you do today.", author: "Mahatma Gandhi" },
-  { quote: "Success is the sum of small efforts, repeated day in and day out.", author: "Robert Collier" },
-  { quote: "It always seems impossible until it's done.", author: "Nelson Mandela" },
-  { quote: "Act as if what you do makes a difference. It does.", author: "William James" },
-  { quote: "The secret of getting ahead is getting started.", author: "Mark Twain" },
-  { quote: "Great things are done by a series of small things brought together.", author: "Vincent van Gogh" },
-  { quote: "If there is no struggle, there is no progress.", author: "Frederick Douglass" },
-  { quote: "The time is always right to do what is right.", author: "Martin Luther King Jr." },
-  { quote: "Do what you can, with what you have, where you are.", author: "Theodore Roosevelt" },
-  { quote: "Try to be a rainbow in someone's cloud.", author: "Maya Angelou" },
-  { quote: "Lost time is never found again.", author: "Benjamin Franklin" },
-  { quote: "Energy and persistence conquer all things.", author: "Benjamin Franklin" },
-  { quote: "Nothing great was ever achieved without enthusiasm.", author: "Ralph Waldo Emerson" },
-  { quote: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
-  { quote: "Whether you think you can, or you think you can't—you're right.", author: "Henry Ford" },
-  { quote: "Quality means doing it right when no one is looking.", author: "Henry Ford" },
-  { quote: "You miss 100% of the shots you don't take.", author: "Wayne Gretzky" },
-  { quote: "The best way out is always through.", author: "Robert Frost" },
-  { quote: "What we think, we become.", author: "Buddha" },
-  { quote: "A journey of a thousand miles begins with a single step.", author: "Lao Tzu" }
+// The Agape wisdom calendar intentionally mixes original reflections with a
+// small set of source-checked quotations. The originals keep the tone warm,
+// faith-centered and timeless; the attributed quotations add recognizable
+// voices without turning the page into a generic quote feed.
+const WISDOM_THEMES = [
+  {
+    name: "Faith",
+    starts: [
+      "Trust God before the whole path makes sense.",
+      "Choose obedience over perfect clarity.",
+      "Pray first, then move with courage.",
+      "Let faith set the pace, not fear.",
+      "Stay rooted when outcomes feel uncertain.",
+      "Hold the vision with open hands."
+    ],
+    ends: [
+      "The next faithful step is enough for today.",
+      "Some growth becomes visible only after trust has done its work.",
+      "Peace and action can live in the same heart.",
+      "You do not need every answer to move wisely.",
+      "Deep roots matter most when the wind rises.",
+      "Trust becomes strongest when control loosens its grip."
+    ]
+  },
+  {
+    name: "Discipline",
+    starts: [
+      "Do the small thing well.",
+      "Keep the promise you made to yourself.",
+      "Choose consistency over intensity.",
+      "Start before you feel fully ready.",
+      "Protect the habits that protect your future.",
+      "Practice when no one is watching."
+    ],
+    ends: [
+      "Big outcomes are usually built from ordinary repetitions.",
+      "Self-trust grows one kept commitment at a time.",
+      "What you repeat quietly can outlast what you do dramatically.",
+      "Momentum often arrives after movement.",
+      "Your routines are shaping who you become.",
+      "Private standards eventually shape public results."
+    ]
+  },
+  {
+    name: "Purpose",
+    starts: [
+      "Know what matters before the noise gets loud.",
+      "Build toward something larger than applause.",
+      "Let your gifts become useful to others.",
+      "Do not confuse motion with meaning.",
+      "Let your ambition answer to your values.",
+      "Make room for the work only you can do."
+    ],
+    ends: [
+      "A clear why makes many decisions simpler.",
+      "Purpose survives seasons when recognition disappears.",
+      "Impact begins where ability meets service.",
+      "The right direction matters more than impressive speed.",
+      "Achievement is strongest when character can carry it.",
+      "Calling often becomes clearer through faithful action."
+    ]
+  },
+  {
+    name: "Excellence",
+    starts: [
+      "Do the invisible part with care.",
+      "Raise the standard without raising the noise.",
+      "Make the next version better, not merely bigger.",
+      "Care about the details that serve the whole.",
+      "Respect the work enough to revise it.",
+      "Let quality become a habit, not an event."
+    ],
+    ends: [
+      "Excellence is often decided before anyone sees the result.",
+      "Quiet quality speaks for itself.",
+      "Refinement is a form of discipline.",
+      "Craftsmanship is care made visible in the work.",
+      "Strong outcomes often come from one more thoughtful pass.",
+      "Standards are strongest when they become normal."
+    ]
+  },
+  {
+    name: "Courage",
+    starts: [
+      "Move toward what matters even with a trembling voice.",
+      "Say the true thing with grace.",
+      "Take the risk that aligns with your values.",
+      "Do not let fear make every decision.",
+      "Choose the difficult right over the easy wrong.",
+      "Be willing to begin again with more wisdom."
+    ],
+    ends: [
+      "Courage is action that refuses to wait for perfect comfort.",
+      "Bravery and kindness are not opposites.",
+      "A safe choice is not always a faithful one.",
+      "Fear can inform you without leading you.",
+      "Character is often revealed in inconvenient moments.",
+      "Starting again can be a sign of strength, not defeat."
+    ]
+  },
+  {
+    name: "Service",
+    starts: [
+      "Use what you know to make someone else's path easier.",
+      "Leave people lighter than you found them.",
+      "Notice who is carrying more than they say.",
+      "Make excellence useful to somebody.",
+      "Share credit quickly and take responsibility fully.",
+      "Use influence to open doors, not just enter them."
+    ],
+    ends: [
+      "Generosity multiplies the value of your gifts.",
+      "Service can be powerful without being loud.",
+      "Attention is one of the simplest forms of love.",
+      "Skill becomes impact when it serves a real need.",
+      "Healthy teams remember who made room for others.",
+      "Leadership expands when opportunity is shared."
+    ]
+  },
+  {
+    name: "Love",
+    starts: [
+      "Love people in ways they can actually feel.",
+      "Be present enough to notice the small things.",
+      "Choose patience when you could choose irritation.",
+      "Speak life without avoiding truth.",
+      "Protect the peace of the people you love.",
+      "Love consistently, not only conveniently."
+    ],
+    ends: [
+      "Good intentions become meaningful through thoughtful action.",
+      "Attention is one of love's clearest languages.",
+      "Love often looks ordinary before it looks heroic.",
+      "Care and honesty belong in the same sentence.",
+      "Strength can be gentle and still be strong.",
+      "Steady care builds the kind of trust words cannot rush."
+    ]
+  },
+  {
+    name: "Leadership",
+    starts: [
+      "Bring clarity when the room feels noisy.",
+      "Set the tone you hope others will carry.",
+      "Listen long enough to understand the real problem.",
+      "Make people stronger, not more dependent on you.",
+      "Create room for better ideas than your own.",
+      "Lead with conviction and revise with humility."
+    ],
+    ends: [
+      "Good leadership reduces confusion before it increases speed.",
+      "Culture learns from what leaders repeatedly model.",
+      "Assumptions become expensive when curiosity disappears.",
+      "Leadership scales when capability spreads.",
+      "Strong leaders are not threatened by strong contributors.",
+      "Being decisive does not require pretending to be infallible."
+    ]
+  },
+  {
+    name: "Resilience",
+    starts: [
+      "Keep going without pretending it is easy.",
+      "Let the setback become information.",
+      "Rest when needed, then return with intention.",
+      "Do not make a permanent conclusion from a temporary season.",
+      "Carry the lesson, not the shame.",
+      "Build again with what the storm taught you."
+    ],
+    ends: [
+      "Honest endurance is stronger than performative toughness.",
+      "A hard result can still improve the next decision.",
+      "Recovery is part of resilience, not a failure of it.",
+      "Time can change what today makes look final.",
+      "Growth begins when pain stops owning the story.",
+      "Wisdom can turn loss into better foundations."
+    ]
+  },
+  {
+    name: "Humility",
+    starts: [
+      "Stay teachable even when you are skilled.",
+      "Be curious before being certain.",
+      "Admit the mistake quickly.",
+      "Thank the people who helped shape the win.",
+      "Hold strong opinions with open ears.",
+      "Remember how much you still do not know."
+    ],
+    ends: [
+      "Competence grows faster when ego stops blocking feedback.",
+      "A good question can protect you from an expensive assumption.",
+      "Trust often grows when defensiveness leaves the room.",
+      "No meaningful success is completely solo.",
+      "Conviction and humility can coexist.",
+      "Wonder keeps intelligence from becoming arrogance."
+    ]
+  },
+  {
+    name: "Stewardship",
+    starts: [
+      "Treat time like something entrusted to you.",
+      "Use resources with gratitude and intention.",
+      "Spend attention where it can grow something good.",
+      "Build margin before you need it.",
+      "Protect your energy from avoidable leaks.",
+      "Plan for the future without forgetting to live today."
+    ],
+    ends: [
+      "A calendar quietly reveals what your priorities really are.",
+      "Stewardship turns ownership into responsibility.",
+      "Not everything deserves access to your focus.",
+      "Wise preparation makes pressure less expensive.",
+      "Saying no can preserve a better yes.",
+      "Wisdom holds preparation and gratitude together."
+    ]
+  },
+  {
+    name: "Peace",
+    starts: [
+      "Do not rush what needs presence.",
+      "Create quiet before you create more input.",
+      "Let rest restore you instead of making you guilty.",
+      "Protect a little unhurried time.",
+      "Breathe before you react.",
+      "Enjoy what is already good."
+    ],
+    ends: [
+      "Some of life's best moments disappear when everything becomes a task.",
+      "Peace often needs space before it needs answers.",
+      "A rested mind can see what exhaustion hides.",
+      "Not every valuable moment produces something measurable.",
+      "A small pause can protect a much bigger decision.",
+      "Gratitude protects the present from endless postponement."
+    ]
+  }
 ];
+
+const FEATURED_QUOTES = [
+  { day: 1, quote: "Make each day your masterpiece.", author: "John Wooden", theme: "Excellence", source: "UCLA" },
+  { day: 32, quote: "Optimism is the faith that leads to achievement.", author: "Helen Keller", theme: "Faith", source: "Optimism (1903), American Foundation for the Blind" },
+  { day: 61, quote: "If there is no struggle, there is no progress.", author: "Frederick Douglass", theme: "Resilience", source: "West India Emancipation speech, 1857" },
+  { day: 92, quote: "Far and away the best prize that life offers is the chance to work hard at work worth doing.", author: "Theodore Roosevelt", theme: "Purpose", source: "The Key to Success in Life, 1916" },
+  { day: 122, quote: "The time is always right to do right.", author: "Martin Luther King Jr.", theme: "Courage", source: "NAACP Freedom Fund Dinner address, 1962" },
+  { day: 153, quote: "Your time is limited, so don't waste it living someone else's life.", author: "Steve Jobs", theme: "Purpose", source: "Stanford Commencement, 2005" },
+  { day: 183, quote: "Well done is better than well said.", author: "Benjamin Franklin", theme: "Excellence", source: "Poor Richard's Almanack" },
+  { day: 214, quote: "Power concedes nothing without a demand.", author: "Frederick Douglass", theme: "Courage", source: "West India Emancipation speech, 1857" },
+  { day: 245, quote: "The human being is born with an incurable capacity for making the best of things.", author: "Helen Keller", theme: "Resilience", source: "Red Cross Magazine, 1919" },
+  { day: 275, quote: "Work hard, and when you do play, play hard.", author: "Theodore Roosevelt", theme: "Discipline", source: "Philadelphia speech, 1902" },
+  { day: 306, quote: "Human progress never rolls in on the wheels of inevitability.", author: "Martin Luther King Jr.", theme: "Discipline", source: "NAACP Freedom Fund Dinner address, 1962" },
+  { day: 336, quote: "Lost time is never found again.", author: "Benjamin Franklin", theme: "Stewardship", source: "Poor Richard's Almanack" }
+];
+
+function buildWisdomLibrary() {
+  const library = [];
+  for (let round = 0; library.length < 366; round++) {
+    for (let t = 0; t < WISDOM_THEMES.length && library.length < 366; t++) {
+      const theme = WISDOM_THEMES[t];
+      const start = theme.starts[(round + t) % theme.starts.length];
+      const end = theme.ends[(round * 5 + t * 3) % theme.ends.length];
+      library.push({ quote: `${start} ${end}`, author: "Agape Reflection", theme: theme.name, source: "Original Agape reflection" });
+    }
+  }
+
+  for (const item of FEATURED_QUOTES) {
+    library[item.day - 1] = { quote: item.quote, author: item.author, theme: item.theme, source: item.source };
+  }
+
+  return library;
+}
+
+const WISDOM = buildWisdomLibrary();
 
 function corsHeaders(origin) {
   return {
@@ -97,6 +338,7 @@ export default {
     const url = new URL(request.url);
     if (url.pathname === "/verse") return json(todaysVerse(), 200, origin);
     if (url.pathname === "/wisdom") return json(todaysWisdom(), 200, origin);
+    if (url.pathname === "/wisdom-count") return json({ count: WISDOM.length }, 200, origin);
     if (url.pathname !== "/wifi") return new Response("Not found", { status: 404, headers: corsHeaders(origin) });
     const token = request.headers.get("X-Agape-Token");
     if (!token || token !== env.AGAPE_TOKEN) return json({ error: "Unauthorized" }, 401, origin);
