@@ -33,6 +33,35 @@ const VERSES = [
   { text: "The joy of the Lord is your strength.", reference: "Nehemiah 8:10", youversion: "https://www.bible.com/bible/111/NEH.8.10.NIV" }
 ];
 
+// Short, attributed sayings curated for the Agape daily-wisdom experience.
+// Keep entries concise so the guest page stays calm and uncluttered.
+const WISDOM = [
+  { quote: "Make each day your masterpiece.", author: "John Wooden" },
+  { quote: "Faith is taking the first step even when you don't see the whole staircase.", author: "Martin Luther King Jr." },
+  { quote: "Nothing will work unless you do.", author: "Maya Angelou" },
+  { quote: "Well done is better than well said.", author: "Benjamin Franklin" },
+  { quote: "The future depends on what you do today.", author: "Mahatma Gandhi" },
+  { quote: "Success is the sum of small efforts, repeated day in and day out.", author: "Robert Collier" },
+  { quote: "It always seems impossible until it's done.", author: "Nelson Mandela" },
+  { quote: "Act as if what you do makes a difference. It does.", author: "William James" },
+  { quote: "The secret of getting ahead is getting started.", author: "Mark Twain" },
+  { quote: "Great things are done by a series of small things brought together.", author: "Vincent van Gogh" },
+  { quote: "If there is no struggle, there is no progress.", author: "Frederick Douglass" },
+  { quote: "The time is always right to do what is right.", author: "Martin Luther King Jr." },
+  { quote: "Do what you can, with what you have, where you are.", author: "Theodore Roosevelt" },
+  { quote: "Try to be a rainbow in someone's cloud.", author: "Maya Angelou" },
+  { quote: "Lost time is never found again.", author: "Benjamin Franklin" },
+  { quote: "Energy and persistence conquer all things.", author: "Benjamin Franklin" },
+  { quote: "Nothing great was ever achieved without enthusiasm.", author: "Ralph Waldo Emerson" },
+  { quote: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
+  { quote: "Whether you think you can, or you think you can't—you're right.", author: "Henry Ford" },
+  { quote: "Quality means doing it right when no one is looking.", author: "Henry Ford" },
+  { quote: "You miss 100% of the shots you don't take.", author: "Wayne Gretzky" },
+  { quote: "The best way out is always through.", author: "Robert Frost" },
+  { quote: "What we think, we become.", author: "Buddha" },
+  { quote: "A journey of a thousand miles begins with a single step.", author: "Lao Tzu" }
+];
+
 function corsHeaders(origin) {
   return {
     "Access-Control-Allow-Origin": origin === ALLOWED_ORIGIN ? origin : ALLOWED_ORIGIN,
@@ -43,51 +72,34 @@ function corsHeaders(origin) {
 }
 
 function json(data, status, origin) {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { ...corsHeaders(origin), "Content-Type": "application/json" }
-  });
+  return new Response(JSON.stringify(data), { status, headers: { ...corsHeaders(origin), "Content-Type": "application/json" } });
 }
 
-function todaysVerse() {
-  const parts = new Intl.DateTimeFormat("en-US", {
-    timeZone: "America/Los_Angeles",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit"
-  }).formatToParts(new Date());
-  const values = Object.fromEntries(parts.map(p => [p.type, p.value]));
-  const dayNumber = Math.floor(Date.UTC(Number(values.year), Number(values.month) - 1, Number(values.day)) / 86400000);
-  return VERSES[dayNumber % VERSES.length];
+function pacificDate() {
+  const parts = new Intl.DateTimeFormat("en-US", { timeZone: "America/Los_Angeles", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(new Date());
+  return Object.fromEntries(parts.map(p => [p.type, p.value]));
 }
+
+function dayOfYear() {
+  const v = pacificDate();
+  const y = Number(v.year), m = Number(v.month), d = Number(v.day);
+  return Math.floor((Date.UTC(y, m - 1, d) - Date.UTC(y, 0, 0)) / 86400000);
+}
+
+function todaysVerse() { return VERSES[(dayOfYear() - 1) % VERSES.length]; }
+function todaysWisdom() { return WISDOM[(dayOfYear() - 1) % WISDOM.length]; }
 
 export default {
   async fetch(request, env) {
     const origin = request.headers.get("Origin") || "";
-
-    if (request.method === "OPTIONS") {
-      return new Response(null, { status: 204, headers: corsHeaders(origin) });
-    }
-
-    if (request.method !== "GET") {
-      return new Response("Method not allowed", { status: 405, headers: corsHeaders(origin) });
-    }
-
+    if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders(origin) });
+    if (request.method !== "GET") return new Response("Method not allowed", { status: 405, headers: corsHeaders(origin) });
     const url = new URL(request.url);
-
-    if (url.pathname === "/verse") {
-      return json(todaysVerse(), 200, origin);
-    }
-
-    if (url.pathname !== "/wifi") {
-      return new Response("Not found", { status: 404, headers: corsHeaders(origin) });
-    }
-
+    if (url.pathname === "/verse") return json(todaysVerse(), 200, origin);
+    if (url.pathname === "/wisdom") return json(todaysWisdom(), 200, origin);
+    if (url.pathname !== "/wifi") return new Response("Not found", { status: 404, headers: corsHeaders(origin) });
     const token = request.headers.get("X-Agape-Token");
-    if (!token || token !== env.AGAPE_TOKEN) {
-      return json({ error: "Unauthorized" }, 401, origin);
-    }
-
+    if (!token || token !== env.AGAPE_TOKEN) return json({ error: "Unauthorized" }, 401, origin);
     return json({ ssid: env.WIFI_NAME, password: env.WIFI_PASSWORD }, 200, origin);
   }
 };
