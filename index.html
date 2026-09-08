@@ -44,7 +44,7 @@
   <div class="section-title">Make yourself at home</div>
   <div class="grid">
     <a class="card" href="#house-guide"><div class="icon">🏠</div><div class="copy"><div class="title">House Guide</div><div class="sub">A few helpful things while you’re here.</div></div><div class="chev">›</div></a>
-    <a class="card" href="https://www.biblegateway.com/passage/?search=Joshua%2024%3A15&version=NIV" target="_blank" rel="noopener"><div class="icon">📖</div><div class="copy"><div class="title">Today’s Scripture</div><div class="sub">A little truth for your day.</div></div><div class="chev">›</div></a>
+    <a class="card" id="scriptureCard" href="https://www.bible.com/bible/111/JOS.24.15.NIV" target="_blank" rel="noopener"><div class="icon">📖</div><div class="copy"><div class="title">Today’s Scripture</div><div class="sub" id="scriptureText">A little truth for your day.</div></div><div class="chev">›</div></a>
   </div>
   <section id="house-guide" class="footer"><strong style="color:var(--text)">AGAPE</strong><br>Love God. Love people. Make yourself at home.</section>
 </main>
@@ -54,16 +54,27 @@
   <button id="copyWifi" disabled>Copy Wi‑Fi details</button><div class="note">On iPhone, open Settings → Wi‑Fi, select the network above, then paste the password.</div><div style="height:10px"></div><button id="closeWifi" style="background:rgba(255,255,255,.08);color:var(--text)">Close</button>
 </div></dialog>
 <script>
-  const API_URL='https://agape-guest-api.damienniyonshuti.workers.dev/wifi';
+  const API_BASE='https://agape-guest-api.damienniyonshuti.workers.dev';
   const dialog=document.getElementById('wifiDialog');
   const copyBtn=document.getElementById('copyWifi');
+
+  async function loadScripture(){
+    try{
+      const res=await fetch(`${API_BASE}/verse`);
+      if(!res.ok) throw new Error('Verse unavailable');
+      const verse=await res.json();
+      document.getElementById('scriptureText').textContent=`“${verse.text}” — ${verse.reference}`;
+      document.getElementById('scriptureCard').href=verse.youversion;
+    }catch(e){}
+  }
+
   async function loadWifi(){
     const token=new URLSearchParams(location.search).get('key');
     document.getElementById('ssid').textContent='••••••'; document.getElementById('password').textContent='••••••••'; copyBtn.disabled=true;
     if(!token){ document.getElementById('wifiStatus').textContent='Tap the Agape NFC tag to unlock guest Wi‑Fi details.'; return; }
     document.getElementById('wifiStatus').textContent='Loading your Agape guest Wi‑Fi…';
     try{
-      const res=await fetch(API_URL,{headers:{'X-Agape-Token':token}});
+      const res=await fetch(`${API_BASE}/wifi`,{headers:{'X-Agape-Token':token}});
       if(!res.ok) throw new Error('Unauthorized');
       const data=await res.json(); document.getElementById('ssid').textContent=data.ssid; document.getElementById('password').textContent=data.password; document.getElementById('wifiStatus').textContent='Use the details below to join the guest network.'; copyBtn.disabled=false;
     }catch(e){ document.getElementById('wifiStatus').textContent='Wi‑Fi details could not be unlocked. Please tap the Agape NFC tag again.'; }
@@ -71,5 +82,6 @@
   document.getElementById('wifiCard').addEventListener('click',async e=>{e.preventDefault();dialog.showModal();await loadWifi();});
   document.getElementById('closeWifi').addEventListener('click',()=>dialog.close());
   copyBtn.addEventListener('click',async()=>{const text=`Network: ${document.getElementById('ssid').textContent}\nPassword: ${document.getElementById('password').textContent}`;await navigator.clipboard.writeText(text);const old=copyBtn.textContent;copyBtn.textContent='Copied ✓';setTimeout(()=>copyBtn.textContent=old,1500);});
+  loadScripture();
 </script>
 </body></html>
