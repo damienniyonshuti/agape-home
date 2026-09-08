@@ -11,7 +11,7 @@
     html,body { margin:0; min-height:100%; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
     body { min-height:100vh; display:flex; justify-content:center; background:radial-gradient(circle at 20% 0%,rgba(255,255,255,.08),transparent 28%),linear-gradient(180deg,#111913 0%,#0c110e 100%); }
     .wrap { width:min(100%,520px); padding:34px 20px 48px; }
-    .hero { text-align:center; padding:34px 12px 28px; }
+    .hero { text-align:center; padding:34px 12px 24px; }
     .eyebrow { font-size:12px; letter-spacing:.28em; text-transform:uppercase; color:var(--muted); }
     h1 { margin:14px 0 2px; font-size:clamp(36px,11vw,58px); font-weight:300; letter-spacing:.28em; text-indent:.28em; }
     .welcome { margin:2px 0 16px; font-family:Georgia,"Times New Roman",serif; font-size:28px; font-style:italic; color:var(--accent); }
@@ -23,6 +23,12 @@
     .icon { width:42px; height:42px; display:grid; place-items:center; border-radius:13px; background:rgba(255,255,255,.09); font-size:21px; flex:0 0 auto; }
     .copy { flex:1; min-width:0; } .title { font-size:17px; font-weight:600; } .sub { color:var(--muted); margin-top:4px; font-size:13px; line-height:1.35; } .chev { color:var(--muted); font-size:22px; }
     .section-title { margin:26px 2px 10px; color:var(--muted); font-size:12px; letter-spacing:.18em; text-transform:uppercase; }
+    .scripture-feature { display:block; position:relative; overflow:hidden; margin:2px 0 0; padding:22px 22px 20px; border-radius:22px; text-decoration:none; color:inherit; background:linear-gradient(145deg,rgba(231,223,203,.14),rgba(255,255,255,.055)); border:1px solid rgba(231,223,203,.22); box-shadow:0 12px 34px rgba(0,0,0,.16); }
+    .scripture-feature::after { content:'✦'; position:absolute; right:18px; top:14px; color:rgba(231,223,203,.35); font-size:20px; }
+    .scripture-kicker { display:flex; align-items:center; gap:8px; color:var(--accent); font-size:11px; letter-spacing:.18em; text-transform:uppercase; }
+    .scripture-text { margin:14px 0 9px; font-family:Georgia,"Times New Roman",serif; font-size:20px; line-height:1.45; font-style:italic; color:var(--text); }
+    .scripture-ref { color:var(--accent); font-size:13px; font-weight:600; letter-spacing:.04em; }
+    .scripture-open { margin-top:13px; color:var(--muted); font-size:12px; }
     .footer { text-align:center; padding:30px 16px 4px; color:var(--muted); font-size:12px; line-height:1.5; }
     dialog { width:min(calc(100% - 32px),460px); border:1px solid var(--card-border); border-radius:22px; padding:0; background:#141b16; color:var(--text); }
     dialog::backdrop { background:rgba(0,0,0,.68); backdrop-filter:blur(3px); }
@@ -36,16 +42,22 @@
 <body>
 <main class="wrap">
   <section class="hero"><div class="eyebrow">You are welcome here</div><h1>AGAPE</h1><div class="welcome">Welcome Home</div><p class="verse">“As for me and my house, we will serve the Lord.”<strong>Joshua 24:15</strong></p></section>
+
+  <a class="scripture-feature" id="scriptureCard" href="https://www.bible.com/bible/111/JOS.24.15.NIV" target="_blank" rel="noopener">
+    <div class="scripture-kicker"><span>📖</span><span>Today’s Scripture</span></div>
+    <div class="scripture-text" id="scriptureText">“A little truth for your day.”</div>
+    <div class="scripture-ref" id="scriptureRef">Joshua 24:15</div>
+    <div class="scripture-open">Open in Bible App →</div>
+  </a>
+
+  <div class="section-title">Make yourself at home</div>
   <div class="grid">
     <a class="card" href="#" id="wifiCard"><div class="icon">📶</div><div class="copy"><div class="title">Connect to Wi‑Fi</div><div class="sub">Get connected to the Agape guest network.</div></div><div class="chev">›</div></a>
     <a class="card" href="https://forms.gle/REPLACE_WITH_PRAYER_FORM" target="_blank" rel="noopener"><div class="icon">🙏🏿</div><div class="copy"><div class="title">How can we pray for you?</div><div class="sub">Share a prayer request. You can keep it anonymous.</div></div><div class="chev">›</div></a>
     <a class="card" href="https://open.spotify.com/playlist/7y960QdfR0Qel0dbI9heLq" target="_blank" rel="noopener"><div class="icon">🎵</div><div class="copy"><div class="title">Sounds of Agape</div><div class="sub">Music that fills this home.</div></div><div class="chev">›</div></a>
-  </div>
-  <div class="section-title">Make yourself at home</div>
-  <div class="grid">
     <a class="card" href="#house-guide"><div class="icon">🏠</div><div class="copy"><div class="title">House Guide</div><div class="sub">A few helpful things while you’re here.</div></div><div class="chev">›</div></a>
-    <a class="card" id="scriptureCard" href="https://www.bible.com/bible/111/JOS.24.15.NIV" target="_blank" rel="noopener"><div class="icon">📖</div><div class="copy"><div class="title">Today’s Scripture</div><div class="sub" id="scriptureText">A little truth for your day.</div></div><div class="chev">›</div></a>
   </div>
+
   <section id="house-guide" class="footer"><strong style="color:var(--text)">AGAPE</strong><br>Love God. Love people. Make yourself at home.</section>
 </main>
 <dialog id="wifiDialog"><div class="modal">
@@ -64,7 +76,8 @@
       const res=await fetch(`${API_BASE}/verse`);
       if(!res.ok) throw new Error('Verse unavailable');
       const verse=await res.json();
-      document.getElementById('scriptureText').textContent=`“${verse.text}” — ${verse.reference}`;
+      document.getElementById('scriptureText').textContent=`“${verse.text}”`;
+      document.getElementById('scriptureRef').textContent=verse.reference;
       document.getElementById('scriptureCard').href=verse.youversion;
     }catch(e){}
   }
