@@ -36,7 +36,21 @@
     .wifi-box { margin:18px 0; padding:16px; background:rgba(255,255,255,.06); border-radius:14px; }
     .wifi-row { display:flex; justify-content:space-between; align-items:center; gap:14px; padding:7px 0; } .wifi-label { color:var(--muted); } .wifi-value { text-align:right; }
     button { width:100%; border:0; border-radius:14px; padding:14px 16px; font-size:16px; font-weight:600; background:var(--accent); color:#141414; }
-    button:disabled { opacity:.55; } .note { font-size:12px; color:var(--muted); margin-top:12px; }
+    button:disabled { opacity:.55; }
+    .note { font-size:12px; color:var(--muted); margin-top:12px; }
+    .prayer-intro { margin:0 0 18px; font-family:Georgia,"Times New Roman",serif; font-size:16px; line-height:1.5; color:var(--muted); }
+    .field { margin-top:14px; }
+    .field label { display:block; margin-bottom:7px; color:var(--accent); font-size:12px; font-weight:600; letter-spacing:.04em; }
+    .field input,.field textarea { width:100%; border:1px solid var(--card-border); border-radius:14px; padding:13px 14px; background:rgba(255,255,255,.055); color:var(--text); font:inherit; outline:none; }
+    .field textarea { min-height:132px; resize:vertical; line-height:1.45; }
+    .field input:focus,.field textarea:focus { border-color:rgba(231,223,203,.5); box-shadow:0 0 0 3px rgba(231,223,203,.08); }
+    .prayer-actions { display:grid; gap:10px; margin-top:18px; }
+    .secondary { background:rgba(255,255,255,.08); color:var(--text); }
+    .prayer-success { display:none; text-align:center; padding:14px 4px 2px; }
+    .prayer-success .heart { font-size:34px; margin-bottom:8px; }
+    .prayer-success h3 { margin:0 0 8px; font-family:Georgia,"Times New Roman",serif; font-size:24px; font-weight:500; }
+    .prayer-success p { margin:0 0 18px; }
+    .hidden-frame { display:none; }
   </style>
 </head>
 <body>
@@ -53,22 +67,44 @@
   <div class="section-title">Make yourself at home</div>
   <div class="grid">
     <a class="card" href="#" id="wifiCard"><div class="icon">📶</div><div class="copy"><div class="title">Connect to Wi‑Fi</div><div class="sub">Get connected to the Agape guest network.</div></div><div class="chev">›</div></a>
-    <a class="card" href="https://forms.gle/REPLACE_WITH_PRAYER_FORM" target="_blank" rel="noopener"><div class="icon">🙏🏿</div><div class="copy"><div class="title">How can we pray for you?</div><div class="sub">Share a prayer request. You can keep it anonymous.</div></div><div class="chev">›</div></a>
+    <a class="card" href="#" id="prayerCard"><div class="icon">🙏🏿</div><div class="copy"><div class="title">How can we pray for you?</div><div class="sub">Share a prayer request. You can keep it anonymous.</div></div><div class="chev">›</div></a>
     <a class="card" href="https://open.spotify.com/playlist/7y960QdfR0Qel0dbI9heLq" target="_blank" rel="noopener"><div class="icon">🎵</div><div class="copy"><div class="title">Sounds of Agape</div><div class="sub">Music that fills this home.</div></div><div class="chev">›</div></a>
     <a class="card" href="#house-guide"><div class="icon">🏠</div><div class="copy"><div class="title">House Guide</div><div class="sub">A few helpful things while you’re here.</div></div><div class="chev">›</div></a>
   </div>
 
   <section id="house-guide" class="footer"><strong style="color:var(--text)">AGAPE</strong><br>Love God. Love people. Make yourself at home.</section>
 </main>
+
 <dialog id="wifiDialog"><div class="modal">
   <h2>Welcome to HolyNet</h2><p id="wifiStatus">Loading your Agape guest Wi‑Fi…</p>
   <div class="wifi-box"><div class="wifi-row"><span class="wifi-label">Network</span><strong class="wifi-value" id="ssid">HolyNet</strong></div><div class="wifi-row"><span class="wifi-label">Password</span><strong class="wifi-value" id="password">••••••••</strong></div></div>
-  <button id="copyWifi" disabled>Copy Password</button><div class="note">On iPhone, open Settings → Wi‑Fi, select the network above, then paste the password.</div><div style="height:10px"></div><button id="closeWifi" style="background:rgba(255,255,255,.08);color:var(--text)">Close</button>
+  <button id="copyWifi" disabled>Copy Password</button><div class="note">On iPhone, open Settings → Wi‑Fi, select the network above, then paste the password.</div><div style="height:10px"></div><button id="closeWifi" class="secondary">Close</button>
 </div></dialog>
+
+<dialog id="prayerDialog"><div class="modal">
+  <div id="prayerFormView">
+    <h2>How can we pray for you? 🤍</h2>
+    <p class="prayer-intro">It would be an honor to pray with you. Share whatever is on your heart.</p>
+    <form id="prayerForm" action="https://docs.google.com/forms/d/e/1FAIpQLSdR50yL2zg2ZuW9-L8SyzApYyDex5FD1kGozzXGIrY8q2Vqzg/formResponse" method="POST" target="prayerSubmitFrame">
+      <div class="field"><label for="prayerRequest">Prayer request</label><textarea id="prayerRequest" name="entry.2001966376" placeholder="Share what’s on your heart…" required></textarea></div>
+      <div class="field"><label for="prayerName">Your name <span style="font-weight:400;color:var(--muted)">(optional)</span></label><input id="prayerName" name="entry.1838096915" type="text" placeholder="You can leave this blank" /></div>
+      <div class="prayer-actions"><button type="submit" id="sendPrayer">Send Prayer Request 🤍</button><button type="button" id="closePrayer" class="secondary">Close</button></div>
+    </form>
+  </div>
+  <div class="prayer-success" id="prayerSuccess">
+    <div class="heart">🤍</div>
+    <h3>Prayer received</h3>
+    <p>We’re honored to pray with you. May God’s peace meet you right where you are.</p>
+    <button type="button" id="donePrayer">Done</button>
+  </div>
+</div></dialog>
+<iframe name="prayerSubmitFrame" class="hidden-frame" title="Prayer request submission"></iframe>
+
 <script>
   const API_BASE='https://agape-guest-api.damienniyonshuti.workers.dev';
   const GUEST_NETWORK='HolyNet';
-  const dialog=document.getElementById('wifiDialog');
+  const wifiDialog=document.getElementById('wifiDialog');
+  const prayerDialog=document.getElementById('prayerDialog');
   const copyBtn=document.getElementById('copyWifi');
 
   async function loadScripture(){
@@ -93,9 +129,25 @@
       const data=await res.json(); document.getElementById('ssid').textContent=data.ssid || GUEST_NETWORK; document.getElementById('password').textContent=data.password; document.getElementById('wifiStatus').textContent='Use the details below to join the guest network.'; copyBtn.disabled=false;
     }catch(e){ document.getElementById('ssid').textContent=GUEST_NETWORK; document.getElementById('wifiStatus').textContent='Wi‑Fi details could not be unlocked. Please tap the Agape NFC tag again.'; }
   }
-  document.getElementById('wifiCard').addEventListener('click',async e=>{e.preventDefault();dialog.showModal();await loadWifi();});
-  document.getElementById('closeWifi').addEventListener('click',()=>dialog.close());
+
+  document.getElementById('wifiCard').addEventListener('click',async e=>{e.preventDefault();wifiDialog.showModal();await loadWifi();});
+  document.getElementById('closeWifi').addEventListener('click',()=>wifiDialog.close());
   copyBtn.addEventListener('click',async()=>{const password=document.getElementById('password').textContent;await navigator.clipboard.writeText(password);const old=copyBtn.textContent;copyBtn.textContent='Password Copied ✓';setTimeout(()=>copyBtn.textContent=old,1500);});
+
+  document.getElementById('prayerCard').addEventListener('click',e=>{e.preventDefault();document.getElementById('prayerFormView').style.display='block';document.getElementById('prayerSuccess').style.display='none';prayerDialog.showModal();});
+  document.getElementById('closePrayer').addEventListener('click',()=>prayerDialog.close());
+  document.getElementById('donePrayer').addEventListener('click',()=>prayerDialog.close());
+  document.getElementById('prayerForm').addEventListener('submit',()=>{
+    const sendBtn=document.getElementById('sendPrayer');
+    sendBtn.disabled=true; sendBtn.textContent='Sending…';
+    setTimeout(()=>{
+      document.getElementById('prayerForm').reset();
+      sendBtn.disabled=false; sendBtn.textContent='Send Prayer Request 🤍';
+      document.getElementById('prayerFormView').style.display='none';
+      document.getElementById('prayerSuccess').style.display='block';
+    },700);
+  });
+
   loadScripture();
 </script>
 </body></html>
